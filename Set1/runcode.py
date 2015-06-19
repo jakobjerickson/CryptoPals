@@ -200,3 +200,43 @@ print(applyKey(myBin, mykey))
 #Play that funky music, white boy Come on, Come on, Come on 
 #Play that funky music 
 
+##Challenge 7
+
+from Crypto.Cipher import AES
+
+filepath = 'Crypto Pals/Set1/7.txt'
+
+fh = open(filepath)
+myB64 = []
+
+for line in fh:
+    myB64.append(line.strip())
+    
+fh.close()
+myB64 = ''.join(myB64)
+
+myAES = AES.AESCipher('YELLOW SUBMARINE')
+
+print myAES.decrypt(myB64.decode('Base64'))
+
+
+## Challenge 8
+
+filepath = 'Crypto Pals/Set1/8.txt'
+
+fh = open(filepath)
+myHex = []
+
+for line in fh:
+    myHex.append(line.strip())
+    
+fh.close()
+
+
+
+
+
+
+
+
+
