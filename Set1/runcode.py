@@ -204,9 +204,8 @@ print(applyKey(myBin, mykey))
 
 from Crypto.Cipher import AES
 
-filepath = 'Crypto Pals/Set1/7.txt'
+fh = urllib.urlopen('http://cryptopals.com/static/challenge-data/7.txt')
 
-fh = open(filepath)
 myB64 = []
 
 for line in fh:
@@ -214,7 +213,7 @@ for line in fh:
     
 fh.close()
 myB64 = ''.join(myB64)
-
+myHex = Bin2Hex(Base64toBin(MyB64))
 myAES = AES.AESCipher('YELLOW SUBMARINE')
 
 print myAES.decrypt(myB64.decode('Base64'))
@@ -222,19 +221,25 @@ print myAES.decrypt(myB64.decode('Base64'))
 
 ## Challenge 8
 
-filepath = 'Crypto Pals/Set1/8.txt'
+import urllib
 
-fh = open(filepath)
+fh = urllib.urlopen('http://cryptopals.com/static/challenge-data/8.txt')
 myHex = []
 
 for line in fh:
     myHex.append(line.strip())
-    
+
 fh.close()
+HexArray = []     
+for line in myHex:
+	HexArray.append([line[i: i + 32] for i in range(0, 320, 32)])
+	
+[len(line) != len(set(line)) for line in HexArray].index(True)
 
 
 
 
+   
 
 
 
