@@ -38,6 +38,7 @@ sBox = np.array((
 ['8c', 'a1', '89', '0d', 'bf', 'e6', '42', '68', '41', '99', '2d', '0f', 'b0', '54', 'bb', '16']#  f
 ))
 
+a = np.matrix(([2,3,1,1],[1,2,3,1],[1,1,2,3],[3,1,1,2]))
 
 
 def SubBytes(state):
@@ -61,8 +62,18 @@ def ShiftRows(state):
     return temp
     
 def MixColumns(state):
-    temp = np.array((['','','',''],['','','',''],['','','',''],['','','','']),\
-                     dtype = '|S2')
-    for i in range(Nb):
-        for j in range(Nk):
-            
+    temp = np.array((['','','',''],['','','',''],['','','',''],['','','','']), dtype = '|S2')
+    for j in range(Nk):
+        column = [[int(state[i][j], base = 16)] for i in range(4)]
+        Mixed = a * column
+        print column, Mixed
+        for i in range(Nb):
+            temp[i][j] = '{0:02x}'.format(Mixed[i][0])
+    return temp
+
+
+def xtime(hexString):
+    myInt = int(hexString, base = 16)
+    shifted = (myInt<<1)^((myInt>>7&1) * 0x11b)
+    return shifted
+    return '{0:02x}'.format(shifted)
