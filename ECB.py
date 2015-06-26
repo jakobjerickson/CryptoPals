@@ -42,38 +42,33 @@ a = np.matrix(([2,3,1,1],[1,2,3,1],[1,1,2,3],[3,1,1,2]))
 
 
 def SubBytes(state):
-    temp = np.array((['','','',''],['','','',''],['','','',''],['','','','']),\
-                     dtype = '|S2')
+    temp = np.zeros((4,4), dtype = 'int64')
     for i in range(Nb):
         for j in range(Nk):
-            x = int(state[i][j][0], base = 16)
-            y = int(state[i][j][1], base = 16)
-            temp[i][j] = sBox[x][y]
+            x = '{0:02x}'.format(state[i][j])[0]
+            y = '{0:02x}'.format(state[i][j])[1]
+            temp[i][j] = int(sBox[int(x, base = 16)][int(y, base = 16)], base = 16)
     return temp
 
 def ShiftRows(state):
-    temp = np.array((['','','',''],['','','',''],['','','',''],['','','','']),\
-                     dtype = '|S2')
-    for i, row in enumerate(state):
+   temp = np.zeros((4,4), dtype = 'int64')
+   for i, row in enumerate(state):
         temp[i][0] = row[i%4]
         temp[i][1] = row[(i+1)%4]
         temp[i][2] = row[(i+2)%4]
         temp[i][3] = row[(i+3)%4]
-    return temp
-    
+   return temp
+
 def MixColumns(state):
-    temp = np.array((['','','',''],['','','',''],['','','',''],['','','','']), dtype = '|S2')
-    for j in range(Nk):
-        column = [[int(state[i][j], base = 16)] for i in range(4)]
-        Mixed = a * column
-        print column, Mixed
-        for i in range(Nb):
-            temp[i][j] = '{0:02x}'.format(Mixed[i][0])
+    temp = np.zeros((4,4), dtype = 'int64')
+    columns = zip(*state)
+    for i, col in enumerate(columns):
+        temp[i][0] = xtime(col[0])^col[1]^xtime(col[1])^col[2]^col[3]%283
+        temp[i][1] = col[0]^xtime(col[1])^xtime(col[2])^col[2]^col[3]%283
+        temp[i][2] = col[0]^col[1]^xtime(col[2])^xtime(col[3])^col[3]%283
+        temp[i][3] = xtime(col[0])^col[0]^col[1]^col[2]^xtime(col[3])%283
     return temp
 
-
-def xtime(hexString):
-    myInt = int(hexString, base = 16)
+def xtime(myInt):
     shifted = (myInt<<1)^((myInt>>7&1) * 0x11b)
     return shifted
-    return '{0:02x}'.format(shifted)

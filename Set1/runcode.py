@@ -213,10 +213,8 @@ for line in fh:
     
 fh.close()
 myB64 = ''.join(myB64)
-myHex = Bin2Hex(Base64toBin(MyB64))
-myAES = AES.AESCipher('YELLOW SUBMARINE')
+myInt = Bin2Int(Base64toBin(MyB64))
 
-print myAES.decrypt(myB64.decode('Base64'))
 
 
 ## Challenge 8

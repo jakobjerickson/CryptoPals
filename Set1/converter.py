@@ -42,6 +42,17 @@ def Bin2String(mybin):
                                                           mybin[7::8])]
     return ''. join(myString)
 
+def Bin2Int(mybin):
+    myInt = [int(''.join(c), base=2) for c in zip(mybin[::8],
+                                                  mybin[1::8], 
+                                                  mybin[2::8],
+                                                  mybin[3::8],
+                                                  mybin[4::8],
+                                                  mybin[5::8],
+                                                  mybin[6::8],
+                                                  mybin[7::8])]
+    return ''. join(myString)
+    
 def Bin2Base64(mybin):
     base64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
     i = 0
