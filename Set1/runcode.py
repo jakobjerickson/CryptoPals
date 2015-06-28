@@ -202,7 +202,6 @@ print(applyKey(myBin, mykey))
 
 ##Challenge 7
 
-from Crypto.Cipher import AES
 
 fh = urllib.urlopen('http://cryptopals.com/static/challenge-data/7.txt')
 
@@ -213,9 +212,10 @@ for line in fh:
     
 fh.close()
 myB64 = ''.join(myB64)
-myInt = Bin2Int(Base64toBin(MyB64))
-
-
+myHex = Bin2Hex(Base64toBin(myB64))
+key = 'YELLOW SUBMARINE'
+HexKey = ''.join(['{0:02x}'.format(ord(c)) for c in key])
+ApplyInvCipher(myHex, HexKey)
 
 ## Challenge 8
 

@@ -70,26 +70,22 @@ sBoxinv = np.array((
 
 
 def SubBytes(state):
-    pdb.set_trace()
     temp = []
     for i in range(Nb):
         for j in range(Nk):
             x = int('{0:02x}'.format(state[i][j])[0], base = 16)
             y = int('{0:02x}'.format(state[i][j])[1], base = 16)
             temp.append(int(sBox[x][y], base = 16))
-    temp = [temp[i:i+4] for i in range(Nk)]
-    return temp
+    out = [temp[i:i+4] for i in range(0, Nk*Nb, Nk)]
+    return out
 
 def ShiftRows(state):
-#    pdb.set_trace()
-    temp = [[state[j][(i+j)%4]for i in range(Nb)] for j in range(Nk)]
+    temp = [[state[(i+j)%4][i]for i in range(Nb)] for j in range(Nk)]
     return temp
 
 def MixColumns(state):
-#    pdb.set_trace()
-    temp = [[0]*4]*4
-    columns = zip(*state)
-    for i, col in enumerate(columns):
+    temp = [[0]*4,[0]*4,[0]*4,[0]*4]
+    for i, col in enumerate(state):
         temp[i][0] = xtime(col[0])^col[1]^xtime(col[1])^col[2]^col[3]%283
         temp[i][1] = col[0]^xtime(col[1])^xtime(col[2])^col[2]^col[3]%283
         temp[i][2] = col[0]^col[1]^xtime(col[2])^xtime(col[3])^col[3]%283
@@ -132,56 +128,77 @@ def KeyExpansion(key):
     return w
 
 def InvShiftRows(state):
-    temp = [[0]*4]*4
-    for i, row in enumerate(state):
-        temp[i][0] = row[(4-i)%4]
-        temp[i][1] = row[(5-i)%4]
-        temp[i][2] = row[(6-i)%4]
-        temp[i][3] = row[(7-i)%4]
+    temp = [[state[(4-i+j)%4][i]for i in range(Nb)] for j in range(Nk)]
+
     return temp
 
 def InvSubBytes(state):
-    temp = [[0]*4]*4
+    temp = []
     for i in range(Nb):
         for j in range(Nk):
-            x = '{0:02x}'.format(state[i][j])[0]
-            y = '{0:02x}'.format(state[i][j])[1]
-            temp[i][j] = int(sBoxinv[int(x, base = 16)][int(y, base = 16)], base = 16)
-    return temp
+            x = int('{0:02x}'.format(state[i][j])[0], base = 16)
+            y = int('{0:02x}'.format(state[i][j])[1], base = 16)
+            temp.append(int(sBoxinv[x][y], base = 16))
+    out = [temp[i:i+4] for i in range(0, Nk*Nb, Nk)]
+    return out
+
+
 
 def InvMixColumns(state):
-    temp = [[0]*4]*4
-    columns = zip(*state)
-    for i, col in enumerate(columns):
+    temp = [[0]*4,[0]*4,[0]*4,[0]*4]
+    for i, col in enumerate(state):
         temp[i][0] = xtime(col[0], 3)^xtime(col[0], 2)^xtime(col[0])^\
                      xtime(col[1], 3)^xtime(col[1], 1)^col[1]^\
                      xtime(col[2], 3)^xtime(col[2], 2)^col[2]^\
-                     xtime(col[3], 3)^col[3]
+                     xtime(col[3], 3)^col[3]%283
         temp[i][1] = xtime(col[1], 3)^xtime(col[1], 2)^xtime(col[1])^\
                      xtime(col[2], 3)^xtime(col[2], 1)^col[2]^\
                      xtime(col[3], 3)^xtime(col[3], 2)^col[3]^\
-                     xtime(col[0], 3)^col[0]
+                     xtime(col[0], 3)^col[0]%283
         temp[i][2] = xtime(col[2], 3)^xtime(col[2], 2)^xtime(col[2])^\
                      xtime(col[3], 3)^xtime(col[3], 1)^col[3]^\
                      xtime(col[0], 3)^xtime(col[0], 2)^col[0]^\
-                     xtime(col[1], 3)^col[1]
+                     xtime(col[1], 3)^col[1]%283
         temp[i][3] = xtime(col[3], 3)^xtime(col[3], 2)^xtime(col[3])^\
                      xtime(col[0], 3)^xtime(col[0], 1)^col[0]^\
                      xtime(col[1], 3)^xtime(col[1], 2)^col[1]^\
-                     xtime(col[2], 3)^col[2]
+                     xtime(col[2], 3)^col[2]%283
     return temp
     
     
 def Cipher(inp, w):
-#    pdb.set_trace()
     state = [[int(inp[j+i:j+i+2], base = 16) for j in range(0, 8, 2)] for i in range(0, 32, 8)]
     state = AddRoundKey(state, w[0:Nk])
-    for r in range(1, Nr-1):
+    for r in range(1, Nr):
         state = AddRoundKey(MixColumns(ShiftRows(SubBytes(state))), w[r*Nk:(r+1)*Nk])
     state = AddRoundKey(ShiftRows(SubBytes(state)), w[Nr*Nk:(Nr+1)*Nk])
-    outp = [['{0:02x}'.format(c) for c in row] for row in state]
+    outp = ''.join([''.join(['{0:02x}'.format(c) for c in row]) for row in state])
+
     return outp    
     
 def ApplyCipher(inp, key):
+    if (len(inp)%32 != 0):
+        return 'input must be even multiple of 16 bytes'
     w = KeyExpansion(key)
-    return Cipher(inp, w)
+    blocks = [inp[i:i+32] for i in range(0, len(inp), 32)]
+    temp = [Cipher(block, w) for block in blocks]
+    return ''.join(temp)
+
+
+def InvCipher(inp, w):
+    state = [[int(inp[j+i:j+i+2], base = 16) for j in range(0, 8, 2)] for i in range(0, 32, 8)]
+    state = AddRoundKey(state, w[Nr*Nb:])
+    for r in range(Nr - 1, 0, -1):
+        state = InvMixColumns(AddRoundKey((InvSubBytes(InvShiftRows(state))), w[r*Nk:(r+1)*Nk]))
+
+    state = AddRoundKey(InvShiftRows(InvSubBytes(state)), w[0:Nb])
+    outp = ''.join([''.join(['{0:02x}'.format(c) for c in row]) for row in state])
+    return outp   
+    
+def ApplyInvCipher(inp, key):
+    if (len(inp)%32 != 0):
+        return 'input must be even multiple of 16 bytes'
+    w = KeyExpansion(key)
+    blocks = [inp[i:i+32] for i in range(0, len(inp), 32)]
+    temp = [InvCipher(block, w) for block in blocks]
+    return ''.join(temp)
