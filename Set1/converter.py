@@ -13,7 +13,7 @@ def Hex2Bin(mystr):
 def Hex2Int(mystr):
     mybytes = [int(''.join(c), 16) for c in zip(mystr[::2], \
                                                                 mystr[1::2])]
-    return np.array(mybytes)
+    return mybytes
 
 def String2Bin(mystr):
     mybytes = ['{0:08b}'.format(ord(c)) for c in mystr]
@@ -70,8 +70,16 @@ def XORHex(str1, str2):
     mylist = []
     for i in range(len(Bin1)):
         mylist.append(str(int(Bin1[i]) ^ int(Bin2[i])))
-    return ''.join(mylist)
+    return Bin2Hex(''.join(mylist))
     
+    
+def XORHexMult(str1, *args):
+    temp = str1
+    for arg in args:
+        print temp, arg
+        temp = XORHex(temp, arg)
+    return temp
+        
 def XORBin(str1, str2):    
     mylist = []
     for i in range(len(str1)):

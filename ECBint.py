@@ -5,6 +5,7 @@ Created on Sat Jun 20 14:12:49 2015
 @author: jakoberickson
 """
 ## AES Electronic Code Book encryption-decryption for 128-bit key
+KeyExpansion(''.join(Key))
 import numpy as np
 #Declare Constants:
 #The length of the imput block
@@ -67,27 +68,29 @@ sBoxinv = np.array((
 ['17', '2b', '04', '7e', 'ba', '77', 'd6', '26', 'e1', '69', '14', '63', '55', '21', '0c', '7d']#  f
 ))
 
+a = np.matrix(([2,3,1,1],[1,2,3,1],[1,1,2,3],[3,1,1,2]))
 
 
 def SubBytes(state):
-    pdb.set_trace()
-    temp = []
+    temp = np.zeros((4,4), dtype = 'int64')
     for i in range(Nb):
         for j in range(Nk):
-            x = int('{0:02x}'.format(state[i][j])[0], base = 16)
-            y = int('{0:02x}'.format(state[i][j])[1], base = 16)
-            temp.append(int(sBox[x][y], base = 16))
-    temp = [temp[i:i+4] for i in range(Nk)]
+            x = '{0:02x}'.format(state[i][j])[0]
+            y = '{0:02x}'.format(state[i][j])[1]
+            temp[i][j] = int(sBox[int(x, base = 16)][int(y, base = 16)], base = 16)
     return temp
 
 def ShiftRows(state):
-#    pdb.set_trace()
-    temp = [[state[j][(i+j)%4]for i in range(Nb)] for j in range(Nk)]
-    return temp
+   temp = np.zeros((4,4), dtype = 'int64')
+   for i, row in enumerate(state):
+        temp[i][0] = row[i%4]
+        temp[i][1] = row[(i+1)%4]
+        temp[i][2] = row[(i+2)%4]
+        temp[i][3] = row[(i+3)%4]
+   return temp
 
 def MixColumns(state):
-#    pdb.set_trace()
-    temp = [[0]*4]*4
+    temp = np.zeros((4,4), dtype = 'int64')
     columns = zip(*state)
     for i, col in enumerate(columns):
         temp[i][0] = xtime(col[0])^col[1]^xtime(col[1])^col[2]^col[3]%283
@@ -102,8 +105,9 @@ def xtime(myInt, n = 1):
     return myInt
 
 def AddRoundKey(state, w):
-    temp = [[state[j][i] ^ Hex2Int(w[j])[i] for i in range(4)] for j in range(4)]
-    return temp
+#   temp = np.zeros((4,4), dtype = 'int64')
+    temp = [[w[c] ^ x for c, x in enumerate(row)] for row in state]
+    return np.array(state)
     
 
 def SubWord(word):
@@ -129,19 +133,20 @@ def KeyExpansion(key):
             temp = SubWord(temp)
         w.append(XORHex(w[i-Nk],temp))
         i += 1
+    w = [[int(w[i][j:j+2],base = 16) for j in range(0, 8, 2)] for i in range(len(w))]
     return w
 
 def InvShiftRows(state):
-    temp = [[0]*4]*4
-    for i, row in enumerate(state):
+   temp = np.zeros((4,4), dtype = 'int64')
+   for i, row in enumerate(state):
         temp[i][0] = row[(4-i)%4]
         temp[i][1] = row[(5-i)%4]
         temp[i][2] = row[(6-i)%4]
         temp[i][3] = row[(7-i)%4]
-    return temp
+   return temp
 
 def InvSubBytes(state):
-    temp = [[0]*4]*4
+    temp = np.zeros((4,4), dtype = 'int64')
     for i in range(Nb):
         for j in range(Nk):
             x = '{0:02x}'.format(state[i][j])[0]
@@ -150,37 +155,36 @@ def InvSubBytes(state):
     return temp
 
 def InvMixColumns(state):
-    temp = [[0]*4]*4
+    temp = np.zeros((4,4), dtype = 'int64')
     columns = zip(*state)
     for i, col in enumerate(columns):
-        temp[i][0] = xtime(col[0], 3)^xtime(col[0], 2)^xtime(col[0])^\
-                     xtime(col[1], 3)^xtime(col[1], 1)^col[1]^\
-                     xtime(col[2], 3)^xtime(col[2], 2)^col[2]^\
-                     xtime(col[3], 3)^col[3]
-        temp[i][1] = xtime(col[1], 3)^xtime(col[1], 2)^xtime(col[1])^\
-                     xtime(col[2], 3)^xtime(col[2], 1)^col[2]^\
-                     xtime(col[3], 3)^xtime(col[3], 2)^col[3]^\
-                     xtime(col[0], 3)^col[0]
-        temp[i][2] = xtime(col[2], 3)^xtime(col[2], 2)^xtime(col[2])^\
-                     xtime(col[3], 3)^xtime(col[3], 1)^col[3]^\
-                     xtime(col[0], 3)^xtime(col[0], 2)^col[0]^\
-                     xtime(col[1], 3)^col[1]
-        temp[i][3] = xtime(col[3], 3)^xtime(col[3], 2)^xtime(col[3])^\
-                     xtime(col[0], 3)^xtime(col[0], 1)^col[0]^\
-                     xtime(col[1], 3)^xtime(col[1], 2)^col[1]^\
-                     xtime(col[2], 3)^col[2]
+        temp[i][0] = XORHexMult(xtime(col[0], 3),xtime(col[0], 2),xtime(col[0]),\
+                     xtime(col[1], 3),xtime(col[1], 1),col[1],\
+                     xtime(col[2], 3),xtime(col[2], 2),col[2],\
+                     xtime(col[3], 3),col[3])
+        temp[i][1] = XORHexMult(xtime(col[1], 3),xtime(col[1], 2),xtime(col[1]),\
+                     xtime(col[2], 3),xtime(col[2], 1),col[2],\
+                     xtime(col[3], 3),xtime(col[3], 2),col[3],\
+                     xtime(col[0], 3),col[0])
+        temp[i][2] = XORHexMult(xtime(col[2], 3),xtime(col[2], 2),xtime(col[2]),\
+                     xtime(col[3], 3),xtime(col[3], 1),col[3],\
+                     xtime(col[0], 3),xtime(col[0], 2),col[0],\
+                     xtime(col[1], 3),col[1])
+        temp[i][3] = XORHexMult(xtime(col[3 ], 3),xtime(col[3], 2),xtime(col[3]),\
+                     xtime(col[0], 3),xtime(col[0], 1),col[0],\
+                     xtime(col[1], 3),xtime(col[1], 2),col[1],\
+                     xtime(col[2], 3),col[2])
     return temp
     
     
 def Cipher(inp, w):
-#    pdb.set_trace()
-    state = [[int(inp[j+i:j+i+2], base = 16) for j in range(0, 8, 2)] for i in range(0, 32, 8)]
-    state = AddRoundKey(state, w[0:Nk])
+    state = np.array([[int(inp[j+i:j+i+2], base = 16) for j in range(0, 8, 2)] for i in range(0, 32, 8)])
+    state = AddRoundKey(inp, w[0:Nb-1])
     for r in range(1, Nr-1):
-        state = AddRoundKey(MixColumns(ShiftRows(SubBytes(state))), w[r*Nk:(r+1)*Nk])
-    state = AddRoundKey(ShiftRows(SubBytes(state)), w[Nr*Nk:(Nr+1)*Nk])
-    outp = [['{0:02x}'.format(c) for c in row] for row in state]
-    return outp    
+        state = AddRoundKey(MixColumns(ShiftRows(SubBytes(state))), w[r*Nb:(r+1)*Nb-1])
+    
+    return AddRoundKey(ShiftRows(SubBytes(state)), w[Nr*Nb:(Nr+1)*Nb - 1])
+        
     
 def ApplyCipher(inp, key):
     w = KeyExpansion(key)
