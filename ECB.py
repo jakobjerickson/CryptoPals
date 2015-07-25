@@ -6,6 +6,10 @@ Created on Sat Jun 20 14:12:49 2015
 """
 ## AES Electronic Code Book encryption-decryption for 128-bit key
 import numpy as np
+import crypto_utils 
+
+
+
 #Declare Constants:
 #The length of the imput block
 Nb = 4
@@ -98,7 +102,7 @@ def xtime(myInt, n = 1):
     return myInt
 
 def AddRoundKey(state, w):
-    temp = [[state[j][i] ^ Hex2Int(w[j])[i] for i in range(4)] for j in range(4)]
+    temp = [[state[j][i] ^ crypto_utils.hex_to_integer(w[j])[i] for i in range(4)] for j in range(4)]
     return temp
     
 
@@ -120,10 +124,10 @@ def KeyExpansion(key):
     while i < (Nb * (Nr + 1)):
         temp = w[i-1]
         if (i % Nk == 0):
-            temp = XORHex(SubWord(RotWord(temp)), Rcon[(i/Nk)-1])
+            temp = crypto_utils.hex_XOR(SubWord(RotWord(temp)), Rcon[(i/Nk)-1])
         elif ((Nk > 6) & (i % Nk == 0)):
             temp = SubWord(temp)
-        w.append(XORHex(w[i-Nk],temp))
+        w.append(crypto_utils.hex_XOR(w[i-Nk],temp))
         i += 1
     return w
 
