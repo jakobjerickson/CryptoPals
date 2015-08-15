@@ -4,8 +4,15 @@ Created on Tue Jul  7 20:43:25 2015
 
 @author: jakoberickson
 """
+"""
+Detect single-character XOR
+One of the 60-character strings in this file has been encrypted by
+single-character XOR.
 
-# Set1 Challenge 4
+Find it.
+
+(Your code from #3 should help.)
+"""
 import crypto_utils
 
 

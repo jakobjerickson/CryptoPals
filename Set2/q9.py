@@ -1,0 +1,34 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 8 17:50:12 2015
+
+@author: jakoberickson
+"""
+"""
+A block cipher transforms a fixed-sized block (usually 8 or 16 bytes)
+of plaintext into ciphertext. But we almost never want to transform a
+single block; we encrypt irregularly-sized messages.
+
+One way we account for irregularly-sized messages is by padding,
+creating a plaintext that is an even multiple of the blocksize. The
+most popular padding scheme is called PKCS#7.
+
+So: pad any block to a specific block length, by appending the number
+of bytes of padding to the end of the block. For instance,
+
+"YELLOW SUBMARINE"
+... padded to 20 bytes would be:
+
+"YELLOW SUBMARINE\x04\x04\x04\x04"
+"""
+
+def PKCS(input_key, output_key_length):
+    output_key = input_key + chr(4) * (output_key_length - len(input_key))
+    return output_key
+
+
+def main():
+    print PKCS('YELLOW SUBMARINE', 20)
+
+
+main()

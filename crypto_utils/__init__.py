@@ -105,13 +105,6 @@ def cycle_keys(encrypted_binary):
     return xord_binary_strings
 
 
-def apply_repeating_key(binary_input_string, expanded_key_string):
-    binary_key = ''.join(char_to_binary(letter) 
-                         for letter in expanded_key_string)
-    xord_binary = binary_XOR(binary_input_string, binary_key)
-    return binary_to_char(xord_binary)
-
-
 def binary_XOR(binary_input1, binary_input2):
     binary_output = ''
     for m, n in zip(binary_input1, binary_input2):
@@ -144,8 +137,7 @@ def hex_to_integer(input_hex_string):
 def hex_to_char(hex_input):
     char_output = ''
     for i in range(0, len(hex_input), 2):
-        temp_char = chr(int(hex_input[i:i+2], base=16))
-        char_output += temp_char
+        char_output += chr(int(hex_input[i:i+2], base=16))
     return char_output
 
 
@@ -199,5 +191,14 @@ def base64_to_binary(base64_string):
     return binary_string
 
 
+def base64_to_hex(base64_string):
+    return(binary_to_hex(base64_to_binary(base64_string)))
+
+
 def get_hamming_distance(binary_string1, binary_string2):
     return binary_XOR(binary_string1, binary_string2).count('1')
+
+
+def char_to_hex(char_input):
+    return ''.join('{0:02x}'.format(ord(char)) for char in char_input)
+
