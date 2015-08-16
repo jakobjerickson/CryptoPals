@@ -4,6 +4,10 @@ Created on Sun Aug 9 9:49:12 2015
 
 @author: jakoberickson
 """
+import random
+from crypto_utils import CBC, ECB, oracle
+
+
 """
 An ECB/CBC detection oracle
 Now that you have ECB and CBC working:
@@ -29,8 +33,6 @@ Detect the block cipher mode the function is using each time. You
 should end up with a piece of code that, pointed at a block box that
 might be encrypting ECB or CBC, tells you which one is happening.
 """
-import random
-from crypto_utils import CBC, ECB, oracle
 
 
 def random_hex_generator(length=1):
@@ -55,10 +57,11 @@ def PKCS7_pad(hex_plaintext, blocksize):
     padding = '{0:02x}'.format(padding_length) * padding_length
     return hex_plaintext + padding
 
-def random_padder(hex_plaintext):
+
+def random_padder(plain_hex):
     front_padding = random_hex_generator(length=random.randint(5, 10))
     back_padding = random_hex_generator(length=random.randint(5, 10))
-    return front_padding + plaintext_hex_input + back_padding
+    return front_padding + plain_hex + back_padding
 
 
 def main():

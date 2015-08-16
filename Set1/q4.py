@@ -4,6 +4,9 @@ Created on Tue Jul  7 20:43:25 2015
 
 @author: jakoberickson
 """
+import crypto_utils
+
+
 """
 Detect single-character XOR
 One of the 60-character strings in this file has been encrypted by
@@ -13,7 +16,6 @@ Find it.
 
 (Your code from #3 should help.)
 """
-import crypto_utils
 
 
 def main():

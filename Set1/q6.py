@@ -4,6 +4,10 @@ Created on Sat Jul 11 12:24:57 2015
 
 @author: jakoberickson
 """
+from crypto_utils import binary_XOR, get_key_scores, binary_to_char,
+char_to_binary
+
+
 """
 Break repeating-key XOR
 It is officially on, now.
@@ -60,9 +64,6 @@ In particular: the "wokka wokka!!!" edit distance really is 37.
 """
 
 
-from crypto_utils import binary_XOR, get_key_scores, binary_to_char, char_to_binary
-
-
 def base64_to_binary(base64_string):
     base64chars = (
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -82,7 +83,7 @@ def get_hamming_distance(binary_string1, binary_string2):
 
 
 def apply_repeating_key(binary_input_string, expanded_key_string):
-    binary_key = ''.join(char_to_binary(letter) 
+    binary_key = ''.join(char_to_binary(letter)
                          for letter in expanded_key_string)
     xord_binary = binary_XOR(binary_input_string, binary_key)
     return binary_to_char(xord_binary)

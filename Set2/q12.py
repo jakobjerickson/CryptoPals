@@ -4,6 +4,9 @@ Created on Tue Aug 11 14:45:28 2015
 
 @author: jakoberickson
 """
+from crypto_utils import oracle, base64_to_hex, ECB
+
+
 """
 Byte-at-a-time ECB decryption (Simple)
 Copy your oracle function to a new function that encrypts buffers under
@@ -39,7 +42,8 @@ Detect that the function is using ECB. You already know, but do this
 step anyways.
 Knowing the block size, craft an input block that is exactly 1 byte
 short (for instance, if the block size is 8 bytes, make "AAAAAAA").
-Think about what the oracle function is going to put in that last byte position.
+Think about what the oracle function is going to put in that last byte
+position.
 Make a dictionary of every possible last byte by feeding different
 strings to the oracle; for instance, "AAAAAAAA", "AAAAAAAB",
 "AAAAAAAC", remembering the first block of each invocation.
@@ -55,22 +59,22 @@ the contents of those ciphertexts, and now you can. If our experience
 is any guideline, this attack will get you code execution in security
 tests about once a year.
 """
-from crypto_utils import oracle, base64_to_hex, ECB
 
 
 def detect_block_size(unknown_string, hex_key_string):
-    for blocksize in range(1, 48):
-        appended_string = '41' * blocksize + unknown_string
+    for double_block in range(2, 66, 2):
+        appended_string = '41' * double_block + unknown_string
         padded_string = oracle.PKCS7_pad(appended_string, 16)
         ciphertext = ECB.ApplyCipher(padded_string, hex_key_string)
-        if oracle.ECB_detector(ciphertext):
-            return blocksize / 2
+        if oracle.ECB_detector(ciphertext, double_block):
+            return double_block / 2
+    raise Exception('block size not detected!')
 
 
 def encryption_oracle2(unknown_hex, hex_key):
     if oracle.ECB_detector(ECB.ApplyCipher(unknown_hex, hex_key)):
         print 'ECB detected!'
-    block_size = detect_block_size(unknown_hex, hex_key)
+    blocksize = detect_block_size(unknown_hex, hex_key)
     discovered_text = []
     for i in range(0, len(unknown_hex), 2):
         oracle_text = '41' * (blocksize - 1)
@@ -90,7 +94,8 @@ def compare_ciphertext(oracle_text, mystery_text, hex_key):
             return item
     print '??'
     return '??'
-              
+
+
 def main():
     unknown_encoded = (
         'Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24g'
@@ -102,4 +107,3 @@ def main():
     persistent_key = oracle.random_hex_generator(16)
     print encryption_oracle2(unknown_hex, persistent_key)
 main()
-

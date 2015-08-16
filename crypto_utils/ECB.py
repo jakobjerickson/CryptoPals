@@ -4,13 +4,17 @@ Created on Sat Jun 20 14:12:49 2015
 
 @author: jakoberickson
 """
+import crypto_utils
+
+
 """
 AES Electronic Code Book encryption-decryption for 128-bit key
-A detailed description of the algorithm and its implementation can be 
+A detailed description of the algorithm and its implementation can be
 found at:
 http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
 """
-import crypto_utils
+
+
 # Declare Constants:
 # The length of the imput block
 Nb = 4
@@ -52,7 +56,7 @@ sBox = [
 ]
 
 sBoxinv = [
-#  0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f   
+#  0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f
 ['52', '09', '6a', 'd5', '30', '36', 'a5', '38', 'bf', '40', 'a3', '9e', '81', 'f3', 'd7', 'fb'],# 0
 ['7c', 'e3', '39', '82', '9b', '2f', 'ff', '87', '34', '8e', '43', '44', 'c4', 'de', 'e9', 'cb'],# 1
 ['54', '7b', '94', '32', 'a6', 'c2', '23', '3d', 'ee', '4c', '95', '0b', '42', 'fa', 'c3', '4e'],# 2
@@ -72,13 +76,12 @@ sBoxinv = [
 ]
 
 
-
 def SubWord(word):
-    temp = ['','','','']
+    temp = ['', '', '', '']
     for i in range(Nb):
         x = word[2*i]
         y = word[2*i+1]
-        temp[i] = sBox[int(x, base = 16)][int(y, base = 16)]
+        temp[i] = sBox[int(x, base=16)][int(y, base=16)]
     return ''.join(temp)
 
 
@@ -100,10 +103,9 @@ def KeyExpansion(hex_key_string):
             temp = crypto_utils.hex_XOR(SubWord(RotWord(temp)), Rcon[(i/Nk)-1])
         elif ((Nk > 6) & (i % Nk == 0)):
             temp = SubWord(temp)
-        w.append(crypto_utils.hex_XOR(w[i-Nk],temp))
+        w.append(crypto_utils.hex_XOR(w[i-Nk], temp))
         i += 1
     return w
-
 
 
 def SubBytes(input_state):
@@ -112,48 +114,47 @@ def SubBytes(input_state):
         for j in range(Nk):
             x = input_state[i][j] / 16
             y = input_state[i][j] % 16
-            output_state[i][j] = int(sBox[x][y], base = 16)
+            output_state[i][j] = int(sBox[x][y], base=16)
     return output_state
 
 
 def ShiftRows(state):
     return [[state[(i+j) % 4][i]
-        for i in range(Nb)]
-        for j in range(Nk)]
+             for i in range(Nb)]
+            for j in range(Nk)]
 
 
 def MixColumns(state):
     temp = [[0 for i in range(4)] for j in range(4)]
     for i, col in enumerate(state):
-        temp[i][0] = (
-            xtime(col[0]) ^ col[1] ^ xtime(col[1]) ^ col[2] ^ col[3] % 283)
-        temp[i][1] = (
-            col[0] ^ xtime(col[1]) ^ xtime(col[2]) ^ col[2] ^ col[3] % 283)
-        temp[i][2] = (
-            col[0] ^ col[1] ^ xtime(col[2]) ^ xtime(col[3]) ^ col[3] % 283)
-        temp[i][3] = (
-            xtime(col[0]) ^ col[0] ^ col[1] ^ col[2] ^ xtime(col[3]) % 283)
+        temp[i][0] = (xtime(col[0]) ^ col[1] ^ xtime(col[1]) ^
+                      col[2] ^ col[3] % 283)
+        temp[i][1] = (col[0] ^ xtime(col[1]) ^ xtime(col[2]) ^
+                      col[2] ^ col[3] % 283)
+        temp[i][2] = (col[0] ^ col[1] ^ xtime(col[2]) ^
+                      xtime(col[3]) ^ col[3] % 283)
+        temp[i][3] = (xtime(col[0]) ^ col[0] ^ col[1] ^
+                      col[2] ^ xtime(col[3]) % 283)
     return temp
 
 
 # the algorithm will implement n times
 def xtime(int_x, n=1):
     for i in range(n):
-        int_x = (int_x<<1) ^ ((int_x>>7 & 1) * 283)
+        int_x = (int_x << 1) ^ ((int_x >> 7 & 1) * 283)
     return int_x
 
 
 def AddRoundKey(state, int_words):
     return [[state[j][i] ^ int_words[j][i]
-        for i in range(Nb)]
-        for j in range(Nk)]
+             for i in range(Nb)]
+            for j in range(Nk)]
 
 
 def InvShiftRows(state):
     return [[state[(Nb-i+j) % Nb][i]
-        for i in range(Nb)]
-        for j in range(Nk)]
-
+             for i in range(Nb)]
+            for j in range(Nk)]
 
 
 def InvSubBytes(input_state):
@@ -162,9 +163,8 @@ def InvSubBytes(input_state):
         for j in range(Nk):
             x = input_state[i][j] / 16
             y = input_state[i][j] % 16
-            output_state[i][j] = int(sBoxinv[x][y], base = 16)
+            output_state[i][j] = int(sBoxinv[x][y], base=16)
     return output_state
-
 
 
 def InvMixColumns(state):
@@ -172,27 +172,27 @@ def InvMixColumns(state):
     for i, col in enumerate(state):
         temp[i][0] = (
             xtime(col[0], 3) ^ xtime(col[0], 2) ^ xtime(col[0]) ^
-            xtime(col[1], 3)^xtime(col[1], 1)^col[1]^
-            xtime(col[2], 3)^xtime(col[2], 2)^col[2]^
-            xtime(col[3], 3)^col[3] % 283
+            xtime(col[1], 3) ^ xtime(col[1], 1) ^ col[1] ^
+            xtime(col[2], 3) ^ xtime(col[2], 2) ^ col[2] ^
+            xtime(col[3], 3) ^ col[3] % 283
             )
         temp[i][1] = (
-            xtime(col[1], 3)^xtime(col[1], 2)^xtime(col[1])^
-            xtime(col[2], 3)^xtime(col[2], 1)^col[2]^
-            xtime(col[3], 3)^xtime(col[3], 2)^col[3]^
-            xtime(col[0], 3)^col[0] % 283
+            xtime(col[1], 3) ^ xtime(col[1], 2) ^ xtime(col[1]) ^
+            xtime(col[2], 3) ^ xtime(col[2], 1) ^ col[2] ^
+            xtime(col[3], 3) ^ xtime(col[3], 2) ^ col[3] ^
+            xtime(col[0], 3) ^ col[0] % 283
             )
         temp[i][2] = (
-            xtime(col[2], 3)^xtime(col[2], 2)^xtime(col[2])^
-            xtime(col[3], 3)^xtime(col[3], 1)^col[3]^
-            xtime(col[0], 3)^xtime(col[0], 2)^col[0]^
-            xtime(col[1], 3)^col[1] % 283
+            xtime(col[2], 3) ^ xtime(col[2], 2) ^ xtime(col[2]) ^
+            xtime(col[3], 3) ^ xtime(col[3], 1) ^ col[3] ^
+            xtime(col[0], 3) ^ xtime(col[0], 2) ^ col[0] ^
+            xtime(col[1], 3) ^ col[1] % 283
             )
         temp[i][3] = (
-            xtime(col[3], 3)^xtime(col[3], 2)^xtime(col[3])^
-            xtime(col[0], 3)^xtime(col[0], 1)^col[0]^
-            xtime(col[1], 3)^xtime(col[1], 2)^col[1]^
-            xtime(col[2], 3)^col[2] % 283
+            xtime(col[3], 3) ^ xtime(col[3], 2) ^ xtime(col[3]) ^
+            xtime(col[0], 3) ^ xtime(col[0], 1) ^ col[0] ^
+            xtime(col[1], 3) ^ xtime(col[1], 2) ^ col[1] ^
+            xtime(col[2], 3) ^ col[2] % 283
             )
     return temp
 
@@ -201,9 +201,9 @@ def InvMixColumns(state):
 # ease of indexing in Python.This is different than the fips document which
 # moves down columns.
 def Cipher(hex_input, hex_words):
-    state = [[int(hex_input[j+i:j+i+2], base = 16)
-        for i in range(0, 8, 2)]
-        for j in range(0, 32, 8)]
+    state = [[int(hex_input[j+i:j+i+2], base=16)
+              for i in range(0, 8, 2)]
+             for j in range(0, 32, 8)]
 
     int_words = [crypto_utils.hex_to_integer(word) for word in hex_words]
 
@@ -215,11 +215,11 @@ def Cipher(hex_input, hex_words):
         state = AddRoundKey(state, int_words[r*Nk:(r+1)*Nk])
     state = SubBytes(state)
     state = ShiftRows(state)
-    state= AddRoundKey(state, int_words[Nr*Nk:(Nr+1)*Nk])
+    state = AddRoundKey(state, int_words[Nr*Nk:(Nr+1)*Nk])
 
     hex_output = ''.join('{0:02x}'.format(integer)
-        for row in state
-        for integer in row)
+                         for row in state
+                         for integer in row)
     return hex_output
 
 
@@ -237,9 +237,9 @@ def ApplyCipher(hex_input, hex_key_string):
 
 # See note for Cipher
 def InvCipher(hex_input, hex_words):
-    state = [[int(hex_input[j+i:j+i+2], base = 16)
-        for i in range(0, 8, 2)]
-        for j in range(0, 32, 8)]
+    state = [[int(hex_input[j+i:j+i+2], base=16)
+              for i in range(0, 8, 2)]
+             for j in range(0, 32, 8)]
 
     int_words = [crypto_utils.hex_to_integer(word) for word in hex_words]
 
@@ -254,8 +254,8 @@ def InvCipher(hex_input, hex_words):
     state = AddRoundKey(state, int_words[0:Nb])
 
     hex_output = ''.join('{0:02x}'.format(integer)
-        for row in state
-        for integer in row)
+                         for row in state
+                         for integer in row)
     return hex_output
 
 

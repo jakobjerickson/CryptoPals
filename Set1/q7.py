@@ -4,6 +4,9 @@ Created on Tue Jul 21 20:32:54 2015
 
 @author: jakoberickson
 """
+from crypto_utils import binary_to_hex, base64_to_binary, hex_to_char, ECB
+
+
 """
 AES in ECB mode
 The Base64-encoded content in this file has been encrypted via AES-128
@@ -23,9 +26,6 @@ You can obviously decrypt this using the OpenSSL command-line tool,
 but we're having you get ECB working in code for a reason. You'll
 need it a lot later on, and not just for attacking ECB.
 """
-
-
-from crypto_utils import binary_to_hex, base64_to_binary, hex_to_char, ECB
 
 
 def main():

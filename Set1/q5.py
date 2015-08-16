@@ -22,7 +22,9 @@ It should come out to:
 5272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e
 27282f
 
-Encrypt a bunch of stuff using your repeating-key XOR function. Encrypt your mail. Encrypt your password file. Your .sig file. Get a feel for it. I promise, we aren't wasting your time with this.
+Encrypt a bunch of stuff using your repeating-key XOR function. Encrypt
+your mail. Encrypt your password file. Your .sig file. Get a feel for
+it. I promise, we aren't wasting your time with this.
 """
 
 

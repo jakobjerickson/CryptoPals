@@ -22,6 +22,7 @@ of bytes of padding to the end of the block. For instance,
 "YELLOW SUBMARINE\x04\x04\x04\x04"
 """
 
+
 def PKCS(input_key, output_key_length):
     output_key = input_key + chr(4) * (output_key_length - len(input_key))
     return output_key

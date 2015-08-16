@@ -11,7 +11,7 @@ import crypto_utils
 
 
 def ApplyCipher(hex_input, hex_key_string, IV):
-    if (len(hex_input)%32 != 0):
+    if (len(hex_input) % 32 != 0):
         return 'Try Again: input must be even multiple of 16 bytes'
     if (len(hex_key_string) != 32):
         return 'Try Again: key must be exactly 16 bytes'
@@ -30,7 +30,7 @@ def ApplyCipher(hex_input, hex_key_string, IV):
 
 
 def ApplyInvCipher(hex_input, hex_key_string, IV):
-    if (len(hex_input)%32 != 0):
+    if (len(hex_input) % 32 != 0):
         return 'Try Again: input must be even multiple of 16 bytes'
     if (len(hex_key_string) != 32):
         return 'Try Again: key must be exactly 16 bytes'

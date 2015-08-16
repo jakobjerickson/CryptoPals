@@ -201,4 +201,3 @@ def get_hamming_distance(binary_string1, binary_string2):
 
 def char_to_hex(char_input):
     return ''.join('{0:02x}'.format(ord(char)) for char in char_input)
-

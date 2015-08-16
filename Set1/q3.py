@@ -4,6 +4,9 @@ Created on Tue Jul  7 11:20:32 2015
 
 @author: jakoberickson
 """
+from crypto_utils import hex_to_binary
+
+
 """
 The hex encoded string:
 
@@ -17,9 +20,6 @@ How? Devise some method for "scoring" a piece of English plaintext.
 Character frequency is a good metric. Evaluate each output and choose
 the one with the best score.
 """
-
-
-from crypto_utils import hex_to_binary
 
 
 common_letters = 'etaoin shrdlu'
