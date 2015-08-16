@@ -4,8 +4,8 @@ Created on Sat Jul 11 12:24:57 2015
 
 @author: jakoberickson
 """
-from crypto_utils import binary_XOR, get_key_scores, binary_to_char,
-char_to_binary
+from crypto_utils import (binary_XOR, get_key_scores, binary_to_char,
+                          char_to_binary)
 
 
 """

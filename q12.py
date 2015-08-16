@@ -4,7 +4,7 @@ Created on Tue Aug 11 14:45:28 2015
 
 @author: jakoberickson
 """
-from crypto_utils import oracle, base64_to_hex, ECB
+from crypto_utils import oracle, base64_to_hex, hex_to_char
 
 
 """
@@ -61,41 +61,6 @@ tests about once a year.
 """
 
 
-def detect_block_size(unknown_string, hex_key_string):
-    for double_block in range(2, 66, 2):
-        appended_string = '41' * double_block + unknown_string
-        padded_string = oracle.PKCS7_pad(appended_string, 16)
-        ciphertext = ECB.ApplyCipher(padded_string, hex_key_string)
-        if oracle.ECB_detector(ciphertext, double_block):
-            return double_block / 2
-    raise Exception('block size not detected!')
-
-
-def encryption_oracle2(unknown_hex, hex_key):
-    if oracle.ECB_detector(ECB.ApplyCipher(unknown_hex, hex_key)):
-        print 'ECB detected!'
-    blocksize = detect_block_size(unknown_hex, hex_key)
-    discovered_text = []
-    for i in range(0, len(unknown_hex), 2):
-        oracle_text = '41' * (blocksize - 1)
-        mystery_text = oracle_text + unknown_hex[i:i+2]
-        discovered_text.append(compare_ciphertext(oracle_text, mystery_text,
-                                                  hex_key))
-    return discovered_text
-
-
-def compare_ciphertext(oracle_text, mystery_text, hex_key):
-    mystery_cipher = ECB.ApplyCipher(mystery_text, hex_key)
-    hex_dictionary = ['{0:02x}'.format(i) for i in range(256)]
-    for item in hex_dictionary:
-        oracle_cipher = ECB.ApplyCipher(oracle_text + item, hex_key)
-        if oracle_cipher == mystery_cipher:
-            print item
-            return item
-    print '??'
-    return '??'
-
-
 def main():
     unknown_encoded = (
         'Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24g'
@@ -105,5 +70,5 @@ def main():
         )
     unknown_hex = base64_to_hex(unknown_encoded)
     persistent_key = oracle.random_hex_generator(16)
-    print encryption_oracle2(unknown_hex, persistent_key)
+    print hex_to_char(oracle.encryption_oracle2(unknown_hex, persistent_key))
 main()

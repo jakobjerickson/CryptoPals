@@ -51,7 +51,7 @@ def encryption_oracle(plaintext_hex_input):
         return CBC.ApplyCipher(padded_plaintext, random_hex_key, random_IV)
 
 
-def PKCS7_pad(hex_plaintext, blocksize):
+def PKCS7_pad(hex_plaintext, blocksize=16):
     last_block_size = (len(hex_plaintext) % (2 * blocksize)) / 2
     padding_length = blocksize - last_block_size
     padding = '{0:02x}'.format(padding_length) * padding_length

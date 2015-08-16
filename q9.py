@@ -29,7 +29,7 @@ def PKCS(input_key, output_key_length):
 
 
 def main():
-    print PKCS('YELLOW SUBMARINE', 20)
+    print repr(PKCS('YELLOW SUBMARINE', 20))
 
 
 main()
