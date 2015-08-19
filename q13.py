@@ -63,7 +63,8 @@ def parser(input):
 
 
 def profile_for(email):
-    assert '=' not in email and '&' not in email
+    if '=' in email or '&' in email:
+        raise Exception('Invalid email address! Cannot contain "=" or "&"')
     return {
         'email': email,
         'uid': 10,
